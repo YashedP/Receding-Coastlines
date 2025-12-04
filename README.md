@@ -100,7 +100,7 @@ The primary strategy I devised to optimize serving data was, for each timestamp,
 
 Each node represents one or more segments. For instance, the root node represents the full coastline, segments 1-252. Each node has a maximum of four children, splitting its segments amongst its children. So, the children of the root node represent, from north to south, the first fourth of Florida's coastline, the second fourth of Florida's coastline, so on and so forth. This continues until the leaf nodes, which each represent a single segment.
 
-When the backend starts, for every timestamp (past and future), it creates a [coastline tree](backend/src/coastline_tree.py), and computes the bounding box for each node's data. For instance, the bounding box of the root node covers the entirety of Florida's coastline. This data is stored [in a `dict`](backend/src/coastline_mgr.py) from year to coastline tree.
+When the backend starts, for every timestamp (past and future), it creates a [coastline tree](backend/coastline_tree.py), and computes the bounding box for each node's data. For instance, the bounding box of the root node covers the entirety of Florida's coastline. This data is stored [in a `dict`](backend/coastline_mgr.py) from year to coastline tree.
 
 When the frontend wants to retrieve the coastline's shape for a specific year, it provides (1) the year it wants data for and (2) the latitude and longitude coordinates of the top left corner and bottom right corner of the user's view of the map.
 
@@ -108,7 +108,7 @@ When the frontend wants to retrieve the coastline's shape for a specific year, i
 
 Firstly, the backend retrieves the appropriate tree for the provided year. Then, it compares the user's view to the bounding box of the root node. If the root node's bounding box is completely within the user's view, then the root node is returned. If that's not the case, the backend descends to the root node's children, searching for the node with the bounding box that best fits the user's view.
 
-When the candidate node is identified, [an object](backend/src/coastline.py) is created from the node with segment shape data. If the node represents a single segment, the object simply converts the line into a format friendly for JSON serialization. However, if the node represents multiple segments, this object stitches together all the node's segments into a single line, then calls [`shapely`](https://shapely.readthedocs.io/en/stable/)'s [`simplify`](https://shapely.readthedocs.io/en/2.0.7/reference/shapely.simplify.html) method on the line, drastically reducing the number of vertices in the line.
+When the candidate node is identified, [an object](backend/coastline.py) is created from the node with segment shape data. If the node represents a single segment, the object simply converts the line into a format friendly for JSON serialization. However, if the node represents multiple segments, this object stitches together all the node's segments into a single line, then calls [`shapely`](https://shapely.readthedocs.io/en/stable/)'s [`simplify`](https://shapely.readthedocs.io/en/2.0.7/reference/shapely.simplify.html) method on the line, drastically reducing the number of vertices in the line.
 
 Finally, the backend serializes the object's data into JSON and returns the vertices of the node's line to the user.
 
